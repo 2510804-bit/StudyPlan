@@ -91,12 +91,43 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--ac);outline-offs
 @keyframes pop{from{opacity:0;transform:scale(.4) rotate(-40deg)}}
 @keyframes fade{to{opacity:0;visibility:hidden}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.task.on .nm{text-decoration:underline;text-decoration-color:var(--ok);text-decoration-thickness:2px;text-underline-offset:4px}
+.tov{display:none;position:fixed;inset:0;z-index:40;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:calc(env(safe-area-inset-top) + 16px) 20px calc(env(safe-area-inset-bottom) + 24px);background:radial-gradient(420px 420px at 50% 40%,rgba(124,196,255,.18),transparent 70%),#0a1220}
+.tov.on{display:flex}
+.tov.pop{animation:tin .5s cubic-bezier(.2,.8,.2,1)}
+.tov.pop .tw{animation:zoom .9s cubic-bezier(.3,1.3,.5,1)}
+@keyframes tin{from{opacity:0}}@keyframes zoom{from{opacity:0;transform:scale(.55)}}
+.tx{position:absolute;left:16px;top:calc(env(safe-area-inset-top) + 12px)}
+.tw{position:relative;width:min(80vw,320px);aspect-ratio:1}
+.tsvg{width:100%;height:100%;overflow:visible}
+.tk{fill:none;stroke:#18243a;stroke-width:14}
+.ta{fill:none;stroke:url(#tg);stroke-width:14;stroke-linecap:round;transform:rotate(-90deg);transform-origin:150px 150px;transition:stroke-dashoffset 1s linear}
+#tdot{transform-origin:150px 150px;transition:transform 1s linear}
+.glow{position:absolute;inset:8%;border-radius:50%;box-shadow:0 0 60px rgba(124,196,255,.25)}
+.tov.run .glow{animation:breathe 3s ease-in-out infinite}
+@keyframes breathe{50%{box-shadow:0 0 110px rgba(95,214,160,.45)}}
+.tov.fin .ta{stroke:var(--ok)}
+.tc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:0 18%}
+.tt{font-size:clamp(40px,13vw,58px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.tov select{width:min(80vw,320px);padding:12px;background:#0f1726;border:1px solid var(--line);border-radius:12px}
+.tb{gap:12px}.tb button{min-width:130px}
+.qq{max-width:320px;text-align:center;color:var(--sub);font-size:14px;line-height:1.5;min-height:42px}
+.qtx{transition:opacity .35s}.qtx.o{opacity:0}
+.ban{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top) + 8px);max-width:616px;margin:0 auto;z-index:60;background:#fff;color:#111;border-radius:16px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.4);transform:translateY(-160%);transition:transform .45s cubic-bezier(.3,1.3,.5,1)}
+.ban .sub{color:#555}.ban.s{transform:none}
+.goal .dd{background:linear-gradient(135deg,var(--ac),var(--ok));color:#06231a;border-radius:14px;padding:10px 14px;font-weight:800;font-size:18px}
+.qt{display:flex;gap:8px;font-size:14px;line-height:1.55}
+.tcard{display:block;width:100%;color:var(--tx);text-align:left;font-weight:400}
+.tic{font-size:28px}
+.wrap{flex-wrap:wrap}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <nav class="nav" id="nav"></nav>
 <div class="toast" id="toast"></div>
+<div class="tov" id="tov"></div><div class="ban" id="ban"></div>
 <div id="splash"><span>✦</span>매일 공부 기록</div>
 
 <script type="module">
@@ -137,7 +168,8 @@ const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;
 let all = JSON.parse(localStorage.getItem("sp_days")||"{}");   // {date:{d:{},m:{},memo}}
 let user=null, db=null, auth=null, sync=cloudOn?"로그인 필요":"설정 안 됨";
 let page="today", cur=today(), mon=today().slice(0,7), animNext=true;
-let timer = JSON.parse(localStorage.getItem("sp_timer")||"null"); // {id,start,date}
+let timer = JSON.parse(localStorage.getItem("sp_timer")||"null"); if(timer&&timer.start)timer={id:timer.id,date:timer.date,acc:0,since:timer.start};
+let goal = JSON.parse(localStorage.getItem("sp_goal")||"{}");
 
 const rec = d=>all[d]||(all[d]={d:{},m:{},memo:""});
 const doneN = r=>r?TASKS.filter(t=>r.d[t.id]).length:0;
@@ -145,6 +177,61 @@ const minT = r=>r?TASKS.reduce((s,t)=>s+(+r.m[t.id]||0),0):0;
 const active = r=>r&&(doneN(r)>0||minT(r)>0);
 
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("s");setTimeout(()=>e.classList.remove("s"),1400)}
+
+/* ---------- 알림 · 명언 · 목표 · 타이머 ---------- */
+const Q=["오늘 흘린 땀은 내일의 합격 문자가 돼요.","천 리 길도 한 걸음부터. 지금 이 10분이 시작이야.","시작이 반이다. 책상에 앉았으면 이미 절반은 한 거야.","어제의 나보다 딱 1%만 더 해 보자.","포기하고 싶을 때가 실력이 느는 순간이야.","완벽하지 않아도 괜찮아. 오늘도 해냈다는 게 중요해.","꾸준함은 재능을 이긴다.","지금 힘든 건 성장하고 있다는 신호야.","작은 습관이 큰 결과를 만들어.","계획은 지킬 때 비로소 힘이 생겨.","집중한 한 시간이 흐릿한 세 시간보다 낫다.","네가 쏟은 노력은 절대 배신하지 않아.","오늘 한 문제를 더 푸는 사람이 결국 이겨.","쉬는 것도 계획의 일부야. 쉬고 나면 더 멀리 가.","목표를 떠올려 봐. 그 자리에 서 있는 네 모습을.","한 번에 다 하려 하지 말고, 지금 이 단계만 해 보자.","틀린 문제는 실력이 올라갈 자리야.","마음이 흔들릴 땐 일단 5분만 해 보자.","합격은 하루하루 쌓은 기록의 합이야.","지치는 건 최선을 다하고 있다는 증거야.","오늘의 선택이 1년 뒤의 너를 만들어.","너는 생각보다 훨씬 잘하고 있어.","끝까지 가는 사람이 이기는 게 아니라, 계속 가는 사람이 이겨."];
+let qIdx=Math.floor(Math.random()*Q.length), qAt=Date.now();
+function nextQuote(){qIdx=(qIdx+1+Math.floor(Math.random()*(Q.length-1)))%Q.length;
+  document.querySelectorAll(".qtx").forEach(e=>{e.classList.add("o");setTimeout(()=>{e.textContent=Q[qIdx];e.classList.remove("o")},350)})}
+function quoteCard(){return `<div class="card qt"><span>✨</span><span class="qtx">${Q[qIdx]}</span></div>`}
+
+function goalCard(){
+  if(!goal.u)return `<button class="card tcard" data-a="setgoal"><b>🎯 목표 대학을 설정해 보세요</b><div class="sub">탭해서 목표를 정하면 여기에 계속 보여 줄게요</div></button>`;
+  const dd=goal.date?Math.round((new Date(goal.date+"T00:00:00")-new Date(today()+"T00:00:00"))/864e5):null;
+  return `<div class="card goal"><div class="row"><div class="sp"><div class="sub">나의 목표</div><b style="font-size:20px">🎯 ${esc(goal.u)}</b>${goal.dept?`<div class="sub">${esc(goal.dept)}</div>`:""}</div>${dd!==null?`<div class="dd">${dd>0?"D-"+dd:dd===0?"D-DAY":"D+"+(-dd)}</div>`:""}</div></div>`}
+function goalForm(){return `<div class="card"><b>🎯 목표 대학</b><div style="display:grid;gap:8px;margin-top:10px"><input id="gu" placeholder="목표 대학 (예: 서울대학교)" value="${esc(goal.u||"")}"><input id="gd" placeholder="학과 (선택)" value="${esc(goal.dept||"")}"><div class="sub">시험 날짜 (선택 · D-day로 표시돼요)</div><input type="date" id="gdate" value="${goal.date||""}"><button data-a="savegoal">목표 저장</button></div></div>`}
+function saveGoal(){localStorage.setItem("sp_goal",JSON.stringify(goal));if(user&&db)setDoc(doc(db,"users",user.uid,"settings","goal"),{...goal,updatedAt:Date.now()}).catch(()=>{})}
+
+const SLOTS=PLAN.map(p=>{const m=p.t.match(/(\d\d):(\d\d)–(\d\d):(\d\d)/);if(!m)return null;const a=+m[1]*60+ +m[2];let e=+m[3]*60+ +m[4];if(e<=a)e+=1440;return {...p,s:a,e}}).filter(Boolean);
+function alertList(){const o=[];SLOTS.forEach(x=>{
+  if(!x.b)o.push({key:x.id+"s",at:x.s-10,t:`⏰ 10분 뒤 시작: ${x.n}`,b:`${x.t.split(" ")[0]} 준비하고 자리에 앉자`});
+  if(x.e-x.s>=20)o.push({key:x.id+"e",at:x.e-10,t:`⌛ 10분 뒤 종료: ${x.n}`,b:"남은 10분 마무리하고 정리해 보자"})});return o}
+function beep(){try{const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);g.gain.value=.08;o.frequency.value=880;o.start();setTimeout(()=>{o.stop();c.close()},350)}catch(e){}}
+function notify(t,b){const n=$("#ban");n.innerHTML=`<b>${esc(t)}</b><div class="sub">${esc(b)}</div>`;n.classList.add("s");
+  try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}beep();clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove("s"),9000);
+  if("Notification" in window&&Notification.permission==="granted")try{new Notification(t,{body:b})}catch(e){}}
+$("#ban").addEventListener("click",()=>$("#ban").classList.remove("s"));
+function checkAlerts(){if(localStorage.getItem("sp_alert")==="0")return;
+  const n=new Date(),nm=n.getHours()*60+n.getMinutes();let f=JSON.parse(localStorage.getItem("sp_fired")||"{}");if(f.d!==today())f={d:today()};
+  const hit=alertList().filter(a=>nm>=a.at&&nm<a.at+3&&!f[a.key]);
+  if(hit.length){hit.forEach(a=>f[a.key]=1);notify(hit.map(a=>a.t).join(" · "),hit[0].b)}
+  localStorage.setItem("sp_fired",JSON.stringify(f))}
+function alertCard(){const on=localStorage.getItem("sp_alert")!=="0";
+  return `<div class="card"><div class="row"><div class="sp"><b>🔔 계획 알림</b><div class="sub">각 계획 시작 10분 전 · 종료 10분 전</div></div><button class="g" data-a="atoggle">${on?"켜짐":"꺼짐"}</button></div>
+  <div class="row wrap" style="margin-top:10px"><button class="g" data-a="aperm">알림 권한</button><button class="g" data-a="atest">테스트</button><button class="g" data-a="aics">캘린더 알림 받기</button></div>
+  <p class="sub">앱을 열어 둔 동안은 화면 알림이 떠요. 앱이 꺼져 있어도 받으려면 '캘린더 알림 받기'로 매일 반복 알림을 캘린더에 추가해 주세요.</p></div>`}
+function downloadIcs(){const hm=m=>pad(Math.floor(m/60)%24)+pad(m%60)+"00",ymd=today().replaceAll("-",""),x=v=>v.replace(/[,;]/g,c=>"\\"+c);
+  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//StudyPlan//KO","CALSCALE:GREGORIAN"];
+  alertList().forEach(a=>L.push("BEGIN:VEVENT",`UID:sp-${a.key}@studyplan`,`DTSTAMP:${ymd}T000000`,`DTSTART:${ymd}T${hm(a.at)}`,`DTEND:${ymd}T${hm(a.at+5)}`,`SUMMARY:${x(a.t)}`,`DESCRIPTION:${x(a.b)}`,"RRULE:FREQ=DAILY","BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${x(a.t)}`,"TRIGGER:PT0M","END:VALARM","END:VEVENT"));
+  L.push("END:VCALENDAR");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([L.join("\r\n")],{type:"text/calendar"}));a.download="study-alerts.ics";document.body.appendChild(a);a.click();a.remove()}
+
+const TC=2*Math.PI*130;let tOpen=false,tSel=TASKS[0].id;
+const el=()=>timer?timer.acc+(timer.since?Date.now()-timer.since:0):0;
+const goalSecs=id=>{const x=SLOTS.find(v=>v.id===id);return x?(x.e-x.s)*60:3600};
+const prog=()=>Math.min(1,Math.floor(el()/1000)/goalSecs(timer?timer.id:tSel));
+const tsave=()=>timer?localStorage.setItem("sp_timer",JSON.stringify(timer)):localStorage.removeItem("sp_timer");
+function renderTimer(){const o=$("#tov");o.classList.toggle("on",tOpen);if(!tOpen)return;
+  const id=timer?timer.id:tSel,run=!!(timer&&timer.since),nm=TASKS.find(t=>t.id===id).n,p=prog();
+  o.classList.toggle("run",run);o.classList.toggle("fin",p>=1);
+  o.innerHTML=`<button class="g tx" data-a="tclose">‹ 닫기</button>
+  <div class="tw"><div class="glow"></div><svg viewBox="0 0 300 300" class="tsvg"><defs><linearGradient id="tg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7cc4ff"/><stop offset="1" stop-color="#5fd6a0"/></linearGradient></defs><circle class="tk" cx="150" cy="150" r="130"/><circle class="ta" id="tarc" cx="150" cy="150" r="130" style="stroke-dasharray:${TC};stroke-dashoffset:${TC*(1-p)}"/><g id="tdot" style="transform:rotate(${p*360}deg)"><circle cx="150" cy="20" r="9" fill="#fff"/></g></svg>
+  <div class="tc"><div class="tt" id="ttm">00:00</div><div class="sub">${esc(nm)}</div></div></div>
+  <select id="tsel" ${timer?"disabled":""}>${TASKS.map(t=>`<option value="${t.id}" ${t.id===id?"selected":""}>${esc(t.n)}</option>`).join("")}</select>
+  <div class="row tb">${run?`<button class="g" data-a="tpause">⏸ 일시정지</button>`:`<button data-a="tgo">▶ ${timer?"계속":"시작"}</button>`}${timer?`<button class="g" data-a="tend">■ 종료·저장</button>`:""}</div>
+  <div class="qtx qq">${Q[qIdx]}</div>`;tickT()}
+function tickT(){const e=$("#ttm");if(!e||!tOpen)return;const s=Math.floor(el()/1000),h=Math.floor(s/3600),p=prog();
+  e.textContent=(h?pad(h)+":":"")+pad(Math.floor(s/60)%60)+":"+pad(s%60);
+  $("#tarc").style.strokeDashoffset=TC*(1-p);$("#tdot").style.transform=`rotate(${p*360}deg)`;$("#tov").classList.toggle("fin",p>=1)}
 
 /* ---------- 저장 ---------- */
 const timers={};
@@ -159,14 +246,14 @@ function save(d){
 }
 
 /* ---------- Firebase ---------- */
-let unsub=null, firstSnap=true;
+let unsub=null, unsubG=null, firstSnap=true;
 if(cloudOn){
   const app=initializeApp(firebaseConfig);
   auth=getAuth(app);
   db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
   getRedirectResult(auth).catch(()=>{});
   onAuthStateChanged(auth,u=>{
-    user=u; if(unsub){unsub();unsub=null}
+    user=u; if(unsub){unsub();unsub=null} if(unsubG){unsubG();unsubG=null}
     if(!u){sync="로그인 필요";render();return}
     sync="동기화 중…"; firstSnap=true;
     unsub=onSnapshot(collection(db,"users",u.uid,"days"),s=>{
@@ -181,6 +268,11 @@ if(cloudOn){
       sync=s.metadata.fromCache?"오프라인 (연결되면 자동 동기화)":"동기화됨 ✓";
       if(!document.activeElement||!["INPUT","TEXTAREA"].includes(document.activeElement.tagName))render();
     },e=>{sync="동기화 오류: "+e.code;render()});
+    unsubG=onSnapshot(doc(db,"users",u.uid,"settings","goal"),x=>{
+      if(x.exists()){goal=x.data();localStorage.setItem("sp_goal",JSON.stringify(goal));
+        if(!document.activeElement||document.activeElement.tagName!=="INPUT")render()}
+      else if(goal.u)saveGoal();
+    });
   });
 }
 async function login(){
@@ -220,15 +312,13 @@ function recent(){const a=[],l=[];for(let i=13;i>=0;i--){const d=new Date();d.se
   return `<div class="card"><b>최근 14일</b><div class="sub" style="margin:4px 0 14px">합계 ${fmt(a.reduce((x,y)=>x+y,0))}</div>${bars(a,l)}</div>`}
 function viewToday(){
   const r=rec(cur), isT=cur===today();
-  let h=`<h1>오늘의 공부 기록 ✦</h1>
+  let h=`<h1>오늘의 공부 기록 ✦</h1>${goalCard()}${quoteCard()}
   <div class="row card"><input type="date" id="dt" value="${cur}"><span class="sp"></span><button class="g" data-a="goToday">오늘로</button></div>
   <div class="stats"><div class="stat"><span class="sub">완료</span><b>${doneN(r)} / ${TASKS.length}</b></div>
   <div class="stat"><span class="sub">총 공부 시간</span><b>${fmt(minT(r))}</b></div></div><div class="tr big"><i style="width:${doneN(r)/TASKS.length*100}%"></i></div>`;
   if(isT){
-    const run=timer&&timer.date===cur;
-    h+=`<div class="card timer"><div class="sub">공부 타이머</div><div class="t" id="tm">00:00</div>
-    <select id="tsel" ${timer?"disabled":""}>${TASKS.map(t=>`<option value="${t.id}" ${timer&&timer.id===t.id?"selected":""}>${esc(t.n)}</option>`).join("")}</select>
-    <button data-a="${timer?"tstop":"tstart"}" style="width:100%">${timer?"■ 정지하고 시간 저장":"▶ 공부 시작"}</button></div>`;
+    const nm=timer?TASKS.find(t=>t.id===timer.id).n:"";
+    h+=`<button class="card tcard" data-a="topen"><div class="row"><div class="tic">⏱</div><div class="sp"><b>${timer?"타이머 진행 중":"공부 타이머"}</b><div class="sub">${timer?esc(nm)+" · 눌러서 열기":"눌러서 시간 재기"}</div></div><b id="tmini"></b></div></button>`;
   }
   h+=`<div class="card">`;
   PLAN.forEach(p=>{
@@ -264,7 +354,7 @@ function viewLog(){
     :`<div class="card sub">아직 기록이 없어요. 오늘 탭에서 첫 기록을 남겨 보세요.</div>`);
 }
 function viewAcct(){
-  return `<h1>계정</h1><div class="card">`+(!cloudOn
+  return `<h1>계정</h1>`+goalForm()+alertCard()+`<div class="card">`+(!cloudOn
     ?`<b>클라우드 동기화 설정 전</b><p class="warn">index.html 위쪽 firebaseConfig를 채우면 구글 로그인과 동기화가 켜져요. 지금은 이 기기에만 저장돼요.</p>`
     :user?`<div class="row"><div class="sp"><b>${esc(user.displayName||"사용자")}</b><div class="sub">${esc(user.email||"")}</div></div><button class="g" data-a="logout">로그아웃</button></div>`
     :`<b>구글 계정으로 로그인</b><p class="sub">로그인하면 아이폰·아이패드에서 같은 기록을 볼 수 있어요.</p><button data-a="login" style="width:100%">Google로 로그인</button>`)
@@ -279,12 +369,9 @@ function render(){
    .map(([k,i,n])=>`<button class="${page===k?"a":""}" data-p="${k}"><span>${i}</span>${n}</button>`).join("");
   tick();
 }
-function tick(){
-  const e=$("#tm"); if(!e)return;
-  const s=timer?Math.floor((Date.now()-timer.start)/1000):0;
-  e.textContent=`${pad(Math.floor(s/3600))}:${pad(Math.floor(s/60)%60)}:${pad(s%60)}`.replace(/^00:/,"");
-}
-setInterval(tick,1000);
+function tick(){const m=$("#tmini");if(m&&timer){const x=Math.floor(el()/1000);m.textContent=pad(Math.floor(x/60))+":"+pad(x%60)}
+  tickT();if(Date.now()-qAt>15000){qAt=Date.now();nextQuote()}}
+setInterval(tick,1000);setInterval(checkAlerts,15000);
 
 /* ---------- 이벤트 ---------- */
 document.addEventListener("click",e=>{
@@ -297,16 +384,26 @@ document.addEventListener("click",e=>{
   if(a==="logout")signOut(auth);
   if(a==="pm"||a==="nm"){const [y,m]=mon.split("-").map(Number),d=new Date(y,m-1+(a==="nm"?1:-1),1);mon=ds(d).slice(0,7);animNext=true;render()}
   if(a==="reset"&&confirm(cur+" 기록을 초기화할까요?")){all[cur]={d:{},m:{},memo:""};save(cur);render()}
-  if(a==="tstart"){timer={id:$("#tsel").value,start:Date.now(),date:today()};localStorage.setItem("sp_timer",JSON.stringify(timer));render()}
-  if(a==="tstop"&&timer){
-    const mins=Math.max(1,Math.round((Date.now()-timer.start)/60000)), r=rec(timer.date);
-    r.m[timer.id]=(+r.m[timer.id]||0)+mins; const d=timer.date;
-    timer=null;localStorage.removeItem("sp_timer");save(d);render();toast(`${mins}분 저장했어!`)
+  if(a==="setgoal"){page="acct";animNext=true;render();scrollTo(0,0)}
+  if(a==="savegoal"){goal={u:$("#gu").value.trim(),dept:$("#gd").value.trim(),date:$("#gdate").value};saveGoal();toast("목표를 저장했어!")}
+  if(a==="atoggle"){localStorage.setItem("sp_alert",localStorage.getItem("sp_alert")==="0"?"1":"0");render()}
+  if(a==="aperm"){if(!("Notification" in window))toast("이 브라우저는 알림을 지원하지 않아요");else Notification.requestPermission().then(r=>toast(r==="granted"?"알림을 허용했어!":"알림이 허용되지 않았어요"))}
+  if(a==="atest")notify("⏰ 10분 뒤 시작: 테스트","이렇게 알려 줄게요");
+  if(a==="aics")downloadIcs();
+  if(a==="topen"){const o=$("#tov");tOpen=true;o.classList.add("pop");setTimeout(()=>o.classList.remove("pop"),900);renderTimer()}
+  if(a==="tclose"){tOpen=false;renderTimer();render()}
+  if(a==="tgo"){if(!timer)timer={id:tSel,date:today(),acc:0,since:Date.now()};else timer.since=Date.now();tsave();renderTimer()}
+  if(a==="tpause"&&timer&&timer.since){timer.acc+=Date.now()-timer.since;timer.since=null;tsave();renderTimer()}
+  if(a==="tend"&&timer){
+    const mins=Math.round(el()/60000),id=timer.id,d=timer.date;
+    if(mins>=1){const r=rec(d);r.m[id]=(+r.m[id]||0)+mins;save(d)}
+    timer=null;tsave();tOpen=false;renderTimer();render();toast(mins>=1?`${mins}분 저장했어!`:"1분 미만은 저장하지 않았어")
   }
 });
 document.addEventListener("change",e=>{
   const t=e.target;
   if(t.id==="dt"&&t.value){cur=t.value;render()}
+  if(t.id==="tsel"){tSel=t.value;renderTimer()}
   if(t.dataset.c){rec(cur).d[t.dataset.c]=t.checked;save(cur);render()}
 });
 document.addEventListener("input",e=>{
@@ -316,7 +413,7 @@ document.addEventListener("input",e=>{
   if(t.id==="memo"){rec(cur).memo=t.value;save(cur)}
 });
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)render()});
-render();
+render();checkAlerts();
 </script>
 </body>
 </html>
