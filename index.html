@@ -1,191 +1,265 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#101827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="공부 기록">
 <title>매일 공부 기록</title>
 <style>
-:root{--bg:#0b1020;--panel:#141d30;--panel2:#1b2740;--text:#f3f6ff;--muted:#aab6cf;--accent:#83e1c0;--accent2:#9db7ff;--line:#2c3a55;--orange:#ffd18a}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at top,#1b2b46 0%,#0b1020 55%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
-.wrap{max-width:760px;margin:auto;padding:22px 16px 44px}
-header{padding:10px 2px 18px;animation:fadeUp .55s ease both}
-.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--accent);font-weight:800}
-h1{font-size:29px;line-height:1.2;margin:8px 0 7px;letter-spacing:-.04em}
-.sub{color:var(--muted);font-size:14px;line-height:1.55}
-.panel{background:rgba(20,29,48,.92);border:1px solid var(--line);border-radius:20px;padding:16px;margin:13px 0;box-shadow:0 12px 32px #0002;animation:fadeUp .45s ease both}
-.date-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.date-row label{color:var(--muted);font-size:13px}
-input,textarea,button{font:inherit}
-input[type=date]{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:11px;padding:10px;min-height:42px}
-.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
-.stat{background:var(--panel2);padding:13px;border-radius:14px}
-.stat small{color:var(--muted);display:block;font-size:12px;margin-bottom:5px}
-.stat strong{font-size:22px;letter-spacing:-.03em}
-.progress-track{height:9px;background:#0a1020;border-radius:20px;overflow:hidden;margin-top:14px}
-.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:20px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
-.section-title{font-size:17px;font-weight:800;margin:0 0 12px;letter-spacing:-.02em}
-.task{display:grid;grid-template-columns:26px 1fr 95px;gap:10px;align-items:center;padding:13px 0;border-bottom:1px solid #2a3650;transition:opacity .25s,transform .25s}
-.task:last-child{border-bottom:0;padding-bottom:1px}
-.task input[type=checkbox]{appearance:none;width:23px;height:23px;border:2px solid #71809f;border-radius:8px;background:transparent;cursor:pointer;position:relative;transition:all .22s}
-.task input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent);animation:pop .25s ease}
-.task input[type=checkbox]:checked:after{content:"✓";position:absolute;color:#092018;font-weight:900;left:4px;top:0px;font-size:16px}
-.task-name{font-size:14px;font-weight:700;line-height:1.4}
-.task-time{display:block;color:var(--muted);font-size:11px;margin-top:3px;font-weight:500}
-.task.done .task-name{color:#91a1bc;text-decoration:line-through}
-.minutes{width:100%;background:#0e1728;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 7px;text-align:center;min-width:0}
-.minutes::placeholder{color:#7e8ba6}
-.unit{font-size:10px;color:var(--muted);text-align:center;margin-top:4px}
-.task-right{min-width:0}
-.note{width:100%;min-height:74px;resize:vertical;background:#0e1728;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:12px;line-height:1.5}
-.btn-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}
-button{border:0;border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer;transition:transform .15s,filter .15s}
-button:active{transform:scale(.97)}
-.primary{background:var(--accent);color:#092018}
-.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
-.danger{background:#39212b;color:#ffb8c2;border:1px solid #60303d}
-.history-line{color:var(--muted);font-size:12px;line-height:1.5;margin-top:10px}
-.toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e1fff3;color:#092018;padding:11px 16px;border-radius:999px;font-weight:800;font-size:13px;box-shadow:0 8px 30px #0004;transition:all .25s;z-index:9;white-space:nowrap}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-.spark{position:fixed;pointer-events:none;font-size:20px;z-index:8;animation:sparkle .7s ease-out forwards}
-footer{color:#8492ad;font-size:11px;text-align:center;line-height:1.6;padding:14px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pop{0%{transform:scale(.75)}75%{transform:scale(1.18)}100%{transform:scale(1)}}
-@keyframes sparkle{0%{opacity:0;transform:translateY(0) scale(.4) rotate(0)}20%{opacity:1}100%{opacity:0;transform:translateY(-55px) scale(1.3) rotate(35deg)}}
-@media(max-width:420px){.wrap{padding:17px 12px 35px}h1{font-size:26px}.task{grid-template-columns:25px 1fr 82px;gap:8px}.task-name{font-size:13px}.minutes{padding:9px 3px}}
+:root{--bg:#101827;--card:#1a2436;--line:#2a3750;--tx:#eef2f8;--sub:#8d9bb5;--ac:#7cc4ff;--ok:#5fd6a0;--warn:#ffb86b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+body{padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 84px);max-width:640px;margin:0 auto}
+h1{font-size:24px;margin:4px 0 14px}h2{font-size:16px;margin:22px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.row{display:flex;align-items:center;gap:10px}.sp{flex:1}.sub{color:var(--sub);font-size:13px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{display:block;font-size:26px;margin-top:4px}
+button,input,textarea,select{font:inherit;color:var(--tx)}
+input,textarea{background:#0f1726;border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+button{background:var(--ac);color:#0a1424;border:0;border-radius:10px;padding:10px 14px;font-weight:700}
+button.g{background:#26344d;color:var(--tx)}
+textarea{width:100%;min-height:80px}
+.task{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border:0}
+.task input[type=checkbox]{width:24px;height:24px;accent-color:var(--ok)}
+.task .m{width:64px;text-align:right}
+.task.brk{opacity:.5}.task.on .nm{color:var(--ok)}
+.nm{font-weight:600}
+.timer{text-align:center}.timer .t{font-size:40px;font-weight:700;font-variant-numeric:tabular-nums;margin:6px 0}
+.timer select{width:100%;margin-bottom:10px;padding:10px;background:#0f1726;border:1px solid var(--line);border-radius:10px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal div{aspect-ratio:1;border-radius:8px;background:#0f1726;font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--sub)}
+.cal .h{background:none;aspect-ratio:auto;padding:2px}
+.cal .t{outline:2px solid var(--ac)}
+.rec{display:block;width:100%;text-align:left;background:var(--card);color:var(--tx);border:1px solid var(--line);margin-bottom:8px;font-weight:400}
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:#0c1320;border-top:1px solid var(--line);padding:6px 6px calc(env(safe-area-inset-bottom) + 6px)}
+.nav button{flex:1;background:none;color:var(--sub);font-size:12px;font-weight:600;padding:8px 0}
+.nav button.a{color:var(--ac)}.nav span{display:block;font-size:20px}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 90px);transform:translateX(-50%);background:#fff;color:#111;padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;transition:.25s;pointer-events:none}
+.toast.s{opacity:1}
+.pg{display:none}.pg.a{display:block}
+.warn{color:var(--warn);font-size:13px}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header>
-<div class="eyebrow">DAILY STUDY LOG</div>
-<h1>오늘의 공부 기록 ✦</h1>
-<div class="sub">체크하고 공부 시간을 적어 봐. 날짜별로 자동 저장돼서 내일 다시 와도 기록이 남아 있어.</div>
-</header>
+<div id="app"></div>
+<nav class="nav" id="nav"></nav>
+<div class="toast" id="toast"></div>
 
-<section class="panel">
-<div class="date-row"><label for="day">기록 날짜</label><input id="day" type="date"><button class="secondary" id="todayBtn">오늘로</button></div>
-<div class="summary">
-<div class="stat"><small>오늘 완료</small><strong id="doneCount">0 / 7</strong></div>
-<div class="stat"><small>총 공부 시간</small><strong id="totalTime">0분</strong></div>
-</div>
-<div class="progress-track"><div class="progress-fill" id="progress"></div></div>
-<div class="history-line" id="statusText">오늘 할 일을 하나씩 완료해 보자.</div>
-</section>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,setDoc,collection,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-<section class="panel">
-<h2 class="section-title">🌙 저녁 공부</h2>
-<div id="evening">
-<div class="task" data-id="vocab"><input type="checkbox" aria-label="영어 단어 완료"><div><div class="task-name">영어 단어</div><span class="task-time">17:00–17:25</span></div><div class="task-right"><input class="minutes" type="number" min="0" max="999" inputmode="numeric" placeholder="분" aria-label="영어 단어 공부 시간"><div class="unit">분</div></div></div>
-<div class="task" data-id="literature"><input type="checkbox" aria-label="문학 완료"><div><div class="task-name">문학 2지문</div><span class="task-time">17:25–18:20</span></div><div class="task-right"><input class="minutes" type="number" min="0" max="999" inputmode="numeric" placeholder="분" aria-label="문학 공부 시간"><div class="unit">분</div></div></div>
-<div class="task" data-id="break1"><input type="checkbox" aria-label="휴식 완료"><div><div class="task-name">휴식</div><span class="task-time">18:20–18:30</span></div><div class="task-right"><input class="minutes" type="number" min="0" max="999" inputmode="numeric" placeholder="분" aria-label="휴식 시간"><div class="unit">분</div></div></div>
-<div class="task" data-id="reading"><input type="checkbox" aria-label="독서 완료"><div><div class="task-name">독서 2지문</div><span class="task-time">18:30–19:25</span></div><div class="task-right"><input class="minutes" type="number" min="0" max="999" inputmode="numeric" placeholder="분" aria-label="독서 공부 시간"><div class="unit">분</div></div></div>
-<div class="task" data-id="dinner"><input type="checkbox" aria-label="저녁 식사 완료"><div><div class="task-name">저녁 식사</div><span class="task-time">19:25–19:55</span></div><div class="task-right"><input class="minutes" type="number" min="0" max="999" inputmode="numeric" placeholder="분" aria-label="저녁 식사 시간"><div class="unit">분</div></div></div>
-<div class="task" data-id="calculus"><input type="checkbox" aria-label="미적분 쎈 완료"><div><div class="task-name">미적분 쎈 A/B 한 단원</div><span class="task-time">19:55–22:55</span></div><div class="task-right"><input class="minutes" type="number" min="0" max="999" inputmode="numeric" placeholder="분" aria-label="미적분 공부 시간"><div class="unit">분</div></div></div>
-<div class="task" data-id="break2"><input type="checkbox" aria-label="휴식 완료"><div><div class="task-name">짧은 휴식</div><span class="task-time">22:55–23:05</span></div><div class="task-right"><input class="minutes" type="number" min="0" max="999" inputmode="numeric" placeholder="분" aria-label="짧은 휴식 시간"><div class="unit">분</div></div></div>
-<div class="task" data-id="lecture"><input type="checkbox" aria-label="수학2 강의 완료"><div><div class="task-name">현우진 수학Ⅱ 강의</div><span class="task-time">23:05–00:00</span></div><div class="task-right"><input class="minutes" type="number" min="0" max="999" inputmode="numeric" placeholder="분" aria-label="수학2 강의 시간"><div class="unit">분</div></div></div>
-</div>
-</section>
+/* ① Firebase 콘솔에서 복사한 설정값으로 교체하세요 */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
+  appId: "YOUR_APP_ID"
+};
 
-<section class="panel">
-<h2 class="section-title">🌅 아침 공부</h2>
-<div class="task" data-id="wrong"><input type="checkbox" aria-label="수학2 오답 완료"><div><div class="task-name">수학Ⅱ 오답 2단원</div><span class="task-time">07:20–08:10 · 등교 전</span></div><div class="task-right"><input class="minutes" type="number" min="0" max="999" inputmode="numeric" placeholder="분" aria-label="수학2 오답 시간"><div class="unit">분</div></div></div>
-</section>
+/* ② 계획표: 수정은 여기서 (b:true = 휴식/식사, 체크 없음) */
+const PLAN = [
+  {g:"🌅 아침 공부",id:"m1",n:"수학Ⅱ 오답 2단원",t:"07:20–08:10 · 등교 전"},
+  {g:"🌙 저녁 공부",id:"e1",n:"영어 단어",t:"17:00–17:25"},
+  {id:"e2",n:"문학 2지문",t:"17:25–18:20"},
+  {id:"b1",n:"휴식",t:"18:20–18:30",b:true},
+  {id:"e3",n:"독서 2지문",t:"18:30–19:25"},
+  {id:"b2",n:"저녁 식사",t:"19:25–19:55",b:true},
+  {id:"e4",n:"미적분 쎈 A/B 한 단원",t:"19:55–22:55"},
+  {id:"b3",n:"짧은 휴식",t:"22:55–23:05",b:true},
+  {id:"e5",n:"현우진 수학Ⅱ 강의",t:"23:05–00:00"}
+];
+const TASKS = PLAN.filter(p=>!p.b);
+const cloudOn = !firebaseConfig.apiKey.startsWith("YOUR_");
 
-<section class="panel">
-<h2 class="section-title">📝 오늘 메모</h2>
-<textarea id="note" class="note" placeholder="오늘 잘한 점, 어려웠던 문제, 내일 할 일..."></textarea>
-<div class="btn-row">
-<button class="primary" id="saveBtn">기록 저장</button>
-<button class="secondary" id="copyBtn">오늘 기록 요약</button>
-<button class="danger" id="resetBtn">이 날짜 기록 초기화</button>
-</div>
-<div class="history-line">공부 시간은 각 과목 칸에 분 단위로 입력해. 날짜를 바꾸면 그날의 기록을 확인할 수 있어.</div>
-</section>
-<footer>기록은 이 기기의 브라우저에 자동 저장돼. 브라우저 데이터 삭제 또는 다른 기기 사용 시 기록이 사라질 수 있어.</footer>
-</div>
-<div class="toast" id="toast">저장했어!</div>
-<script>
-const $=s=>document.querySelector(s);
-const $$=s=>Array.from(document.querySelectorAll(s));
-const dayInput=$("#day");
-const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
-const keyFor=date=>"study-log-v2:"+date;
-let currentDate=today();
-dayInput.value=currentDate;
+const $ = s=>document.querySelector(s);
+const pad = n=>String(n).padStart(2,"0");
+const ds = d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today = ()=>ds(new Date());
+const fmt = m=>m>=60?`${Math.floor(m/60)}시간${m%60?` ${m%60}분`:""}`:`${m}분`;
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-function collect(){
- const tasks={};
- $$(".task[data-id]").forEach(el=>{
-  tasks[el.dataset.id]={done:el.querySelector('input[type="checkbox"]').checked,minutes:el.querySelector(".minutes").value||""};
- });
- return {tasks,note:$("#note").value,updatedAt:new Date().toISOString()};
+let all = JSON.parse(localStorage.getItem("sp_days")||"{}");   // {date:{d:{},m:{},memo}}
+let user=null, db=null, auth=null, sync=cloudOn?"로그인 필요":"설정 안 됨";
+let page="today", cur=today(), mon=today().slice(0,7);
+let timer = JSON.parse(localStorage.getItem("sp_timer")||"null"); // {id,start,date}
+
+const rec = d=>all[d]||(all[d]={d:{},m:{},memo:""});
+const doneN = r=>r?TASKS.filter(t=>r.d[t.id]).length:0;
+const minT = r=>r?TASKS.reduce((s,t)=>s+(+r.m[t.id]||0),0):0;
+const active = r=>r&&(doneN(r)>0||minT(r)>0);
+
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("s");setTimeout(()=>e.classList.remove("s"),1400)}
+
+/* ---------- 저장 ---------- */
+const timers={};
+function save(d){
+  localStorage.setItem("sp_days",JSON.stringify(all));
+  if(!user||!db)return;
+  clearTimeout(timers[d]);
+  timers[d]=setTimeout(()=>{
+    setDoc(doc(db,"users",user.uid,"days",d),{...all[d],updatedAt:Date.now()})
+      .catch(e=>{sync="동기화 오류: "+e.code;render()});
+  },500);
 }
-function save(silent=false){
- try{localStorage.setItem(keyFor(currentDate),JSON.stringify(collect()));}
- catch(e){showToast("저장할 수 없어. 브라우저 설정을 확인해 줘.");return}
- updateSummary();
- if(!silent)showToast("기록 저장 완료 ✓");
+
+/* ---------- Firebase ---------- */
+let unsub=null, firstSnap=true;
+if(cloudOn){
+  const app=initializeApp(firebaseConfig);
+  auth=getAuth(app);
+  db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
+  getRedirectResult(auth).catch(()=>{});
+  onAuthStateChanged(auth,u=>{
+    user=u; if(unsub){unsub();unsub=null}
+    if(!u){sync="로그인 필요";render();return}
+    sync="동기화 중…"; firstSnap=true;
+    unsub=onSnapshot(collection(db,"users",u.uid,"days"),s=>{
+      const cloud={};
+      s.forEach(x=>cloud[x.id]=x.data());
+      if(firstSnap){ // 이 기기에만 있는 기록은 클라우드로 업로드
+        Object.keys(all).forEach(k=>{ if(!cloud[k]&&active(all[k])) setDoc(doc(db,"users",u.uid,"days",k),{...all[k],updatedAt:Date.now()}) });
+        firstSnap=false;
+      }
+      Object.keys(cloud).forEach(k=>all[k]={d:cloud[k].d||{},m:cloud[k].m||{},memo:cloud[k].memo||""});
+      localStorage.setItem("sp_days",JSON.stringify(all));
+      sync=s.metadata.fromCache?"오프라인 (연결되면 자동 동기화)":"동기화됨 ✓";
+      if(!document.activeElement||!["INPUT","TEXTAREA"].includes(document.activeElement.tagName))render();
+    },e=>{sync="동기화 오류: "+e.code;render()});
+  });
 }
-function load(date){
- currentDate=date;dayInput.value=date;
- let data={};
- try{data=JSON.parse(localStorage.getItem(keyFor(date))||"{}")}catch(e){}
- $$(".task[data-id]").forEach(el=>{
-  const saved=data.tasks?.[el.dataset.id]||{};
-  el.querySelector('input[type="checkbox"]').checked=!!saved.done;
-  el.querySelector(".minutes").value=saved.minutes??"";
-  el.classList.toggle("done",!!saved.done);
- });
- $("#note").value=data.note||"";
- updateSummary();
+async function login(){
+  const p=new GoogleAuthProvider();
+  try{await signInWithPopup(auth,p)}
+  catch(e){ if(e.code!=="auth/popup-closed-by-user") try{await signInWithRedirect(auth,p)}catch(x){toast("로그인 실패: "+x.code)} }
 }
-function updateSummary(){
- const tasks=$$(".task[data-id]");
- const completed=tasks.filter(el=>el.querySelector('input[type="checkbox"]').checked).length;
- const total=tasks.length;
- const minutes=tasks.reduce((sum,el)=>sum+(Math.max(0,Number(el.querySelector(".minutes").value)||0)),0);
- $("#doneCount").textContent=`${completed} / ${total}`;
- $("#totalTime").textContent=minutes>=60?`${Math.floor(minutes/60)}시간 ${minutes%60}분`:`${minutes}분`;
- $("#progress").style.width=`${completed/total*100}%`;
- $("#statusText").textContent=completed===total?"완벽해! 오늘 계획을 전부 완료했어 🎉":completed===0?"오늘 할 일을 하나씩 완료해 보자.":`좋아, ${completed}개 완료했어. 다음 할 일도 이어 가자!`;
+
+/* ---------- 통계 ---------- */
+function streak(){
+  const d=new Date(); if(!active(all[ds(d)]))d.setDate(d.getDate()-1);
+  let n=0; while(active(all[ds(d)])){n++;d.setDate(d.getDate()-1)} return n;
 }
-function showToast(msg){
- const t=$("#toast");t.textContent=msg;t.classList.add("show");
- clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),1900);
+function bestStreak(){
+  const ks=Object.keys(all).filter(k=>active(all[k])).sort(); let b=0,c=0,p=null;
+  ks.forEach(k=>{const t=new Date(k+"T00:00:00");
+    c=(p&&(t-p)/864e5===1)?c+1:1; b=Math.max(b,c); p=t}); return b;
 }
-function sparkle(el){
- const r=el.getBoundingClientRect();
- for(let i=0;i<4;i++){
-  const s=document.createElement("span");s.className="spark";s.textContent=["✦","✧","✦","·"][i];
-  s.style.left=(r.left+Math.random()*r.width)+"px";s.style.top=(r.top+Math.random()*r.height)+"px";
-  s.style.color=["#83e1c0","#9db7ff","#ffd18a"][i%3];document.body.appendChild(s);setTimeout(()=>s.remove(),750);
- }
+function monthStats(m){
+  const [y,mo]=m.split("-").map(Number), last=new Date(y,mo,0).getDate(), t=today();
+  let days=0,done=0,min=0,studied=0;
+  for(let i=1;i<=last;i++){const k=`${m}-${pad(i)}`; if(k>t)break; days++;
+    const r=all[k]; done+=doneN(r); min+=minT(r); if(active(r))studied++}
+  return {y,mo,last,days,done,min,studied,rate:days?Math.round(done/(days*TASKS.length)*100):0};
 }
-$$(".task[data-id]").forEach(el=>{
- const cb=el.querySelector('input[type="checkbox"]'), mins=el.querySelector(".minutes");
- cb.addEventListener("change",()=>{el.classList.toggle("done",cb.checked);if(cb.checked)sparkle(cb);save(true)});
- mins.addEventListener("input",()=>save(true));
+
+/* ---------- 화면 ---------- */
+function viewToday(){
+  const r=rec(cur), isT=cur===today();
+  let h=`<h1>오늘의 공부 기록 ✦</h1>
+  <div class="row card"><input type="date" id="dt" value="${cur}"><span class="sp"></span><button class="g" data-a="goToday">오늘로</button></div>
+  <div class="stats"><div class="stat"><span class="sub">완료</span><b>${doneN(r)} / ${TASKS.length}</b></div>
+  <div class="stat"><span class="sub">총 공부 시간</span><b>${fmt(minT(r))}</b></div></div>`;
+  if(isT){
+    const run=timer&&timer.date===cur;
+    h+=`<div class="card timer"><div class="sub">공부 타이머</div><div class="t" id="tm">00:00</div>
+    <select id="tsel" ${timer?"disabled":""}>${TASKS.map(t=>`<option value="${t.id}" ${timer&&timer.id===t.id?"selected":""}>${esc(t.n)}</option>`).join("")}</select>
+    <button data-a="${timer?"tstop":"tstart"}" style="width:100%">${timer?"■ 정지하고 시간 저장":"▶ 공부 시작"}</button></div>`;
+  }
+  h+=`<div class="card">`;
+  PLAN.forEach(p=>{
+    if(p.g)h+=`${p.id!==PLAN[0].id?"</div><div class=card>":""}<div class="sub" style="margin-bottom:4px">${p.g}</div>`;
+    h+= p.b ? `<div class="task brk"><div class="sp"><div class="nm">${p.n}</div><div class="sub">${p.t}</div></div></div>`
+    : `<div class="task ${r.d[p.id]?"on":""}"><input type="checkbox" data-c="${p.id}" ${r.d[p.id]?"checked":""}>
+       <div class="sp"><div class="nm">${esc(p.n)}</div><div class="sub">${p.t}</div></div>
+       <input class="m" type="number" inputmode="numeric" min="0" placeholder="0" data-m="${p.id}" value="${r.m[p.id]||""}"><span class="sub">분</span></div>`;
+  });
+  h+=`</div><h2>📝 메모</h2><textarea id="memo" placeholder="오늘 공부 메모">${esc(r.memo||"")}</textarea>
+  <div class="row" style="margin-top:10px"><span class="sub sp">변경하면 자동 저장돼요</span><button class="g" data-a="reset">이 날짜 초기화</button></div>`;
+  return h;
+}
+function viewStats(){
+  const s=monthStats(mon), first=new Date(s.y,s.mo-1,1).getDay();
+  let cal=["일","월","화","수","목","금","토"].map(d=>`<div class="h">${d}</div>`).join("")+"<div></div>".repeat(first);
+  for(let i=1;i<=s.last;i++){const k=`${mon}-${pad(i)}`, r=all[k], p=doneN(r)/TASKS.length;
+    const bg=active(r)?`background:rgba(95,214,160,${(.18+p*.7).toFixed(2)});color:#fff`:"";
+    cal+=`<div class="${k===today()?"t":""}" style="${bg}" data-go="${k}">${i}</div>`}
+  return `<h1>월간 통계</h1>
+  <div class="row card"><button class="g" data-a="pm">‹</button><b class="sp" style="text-align:center">${s.y}년 ${s.mo}월</b><button class="g" data-a="nm">›</button></div>
+  <div class="stats">
+   <div class="stat"><span class="sub">계획 완료율</span><b>${s.rate}%</b><span class="sub">${s.done} / ${s.days*TASKS.length}개</span></div>
+   <div class="stat"><span class="sub">연속 공부 일수</span><b>${streak()}일</b><span class="sub">최장 ${bestStreak()}일</span></div>
+   <div class="stat"><span class="sub">총 공부 시간</span><b>${fmt(s.min)}</b></div>
+   <div class="stat"><span class="sub">공부한 날 · 일평균</span><b>${s.studied}일</b><span class="sub">${s.studied?fmt(Math.round(s.min/s.studied)):"0분"}</span></div></div>
+  <div class="card"><div class="cal">${cal}</div><div class="sub" style="margin-top:8px">진할수록 많이 완료한 날이에요. 날짜를 누르면 그날 기록으로 이동해요.</div></div>`;
+}
+function viewLog(){
+  const ks=Object.keys(all).filter(k=>active(all[k])||all[k].memo).sort().reverse();
+  return `<h1>공부 기록</h1>`+(ks.length?ks.map(k=>{const r=all[k];
+    return `<button class="rec" data-go="${k}"><div class="row"><b>${k}</b><span class="sp"></span><span class="sub">${doneN(r)}/${TASKS.length} 완료 · ${fmt(minT(r))}</span></div>${r.memo?`<div class="sub" style="margin-top:4px">${esc(r.memo.slice(0,60))}</div>`:""}</button>`}).join("")
+    :`<div class="card sub">아직 기록이 없어요. 오늘 탭에서 첫 기록을 남겨 보세요.</div>`);
+}
+function viewAcct(){
+  return `<h1>계정</h1><div class="card">`+(!cloudOn
+    ?`<b>클라우드 동기화 설정 전</b><p class="warn">index.html 위쪽 firebaseConfig를 채우면 구글 로그인과 동기화가 켜져요. 지금은 이 기기에만 저장돼요.</p>`
+    :user?`<div class="row"><div class="sp"><b>${esc(user.displayName||"사용자")}</b><div class="sub">${esc(user.email||"")}</div></div><button class="g" data-a="logout">로그아웃</button></div>`
+    :`<b>구글 계정으로 로그인</b><p class="sub">로그인하면 아이폰·아이패드에서 같은 기록을 볼 수 있어요.</p><button data-a="login" style="width:100%">Google로 로그인</button>`)
+  +`</div><div class="card"><div class="sub">동기화 상태</div><b>${sync}</b></div>
+  <p class="sub">기록은 기기에도 저장돼서 오프라인에서도 쓸 수 있고, 로그인 상태에선 자동으로 클라우드에 올라가요.</p>`;
+}
+
+function render(){
+  const v={today:viewToday,stats:viewStats,log:viewLog,acct:viewAcct}[page]();
+  $("#app").innerHTML=v;
+  $("#nav").innerHTML=[["today","✏️","오늘 공부"],["stats","📊","월간 통계"],["log","📚","공부 기록"],["acct","👤","계정"]]
+   .map(([k,i,n])=>`<button class="${page===k?"a":""}" data-p="${k}"><span>${i}</span>${n}</button>`).join("");
+  tick();
+}
+function tick(){
+  const e=$("#tm"); if(!e)return;
+  const s=timer?Math.floor((Date.now()-timer.start)/1000):0;
+  e.textContent=`${pad(Math.floor(s/3600))}:${pad(Math.floor(s/60)%60)}:${pad(s%60)}`.replace(/^00:/,"");
+}
+setInterval(tick,1000);
+
+/* ---------- 이벤트 ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-p],[data-a],[data-go]"); if(!t)return;
+  if(t.dataset.p){page=t.dataset.p;render();scrollTo(0,0);return}
+  if(t.dataset.go){cur=t.dataset.go;page="today";render();scrollTo(0,0);return}
+  const a=t.dataset.a;
+  if(a==="goToday"){cur=today();render()}
+  if(a==="login")login();
+  if(a==="logout")signOut(auth);
+  if(a==="pm"||a==="nm"){const [y,m]=mon.split("-").map(Number),d=new Date(y,m-1+(a==="nm"?1:-1),1);mon=ds(d).slice(0,7);render()}
+  if(a==="reset"&&confirm(cur+" 기록을 초기화할까요?")){all[cur]={d:{},m:{},memo:""};save(cur);render()}
+  if(a==="tstart"){timer={id:$("#tsel").value,start:Date.now(),date:today()};localStorage.setItem("sp_timer",JSON.stringify(timer));render()}
+  if(a==="tstop"&&timer){
+    const mins=Math.max(1,Math.round((Date.now()-timer.start)/60000)), r=rec(timer.date);
+    r.m[timer.id]=(+r.m[timer.id]||0)+mins; const d=timer.date;
+    timer=null;localStorage.removeItem("sp_timer");save(d);render();toast(`${mins}분 저장했어!`)
+  }
 });
-$("#note").addEventListener("input",()=>save(true));
-dayInput.addEventListener("change",()=>{if(dayInput.value)load(dayInput.value)});
-$("#todayBtn").addEventListener("click",()=>load(today()));
-$("#saveBtn").addEventListener("click",()=>save(false));
-$("#resetBtn").addEventListener("click",()=>{
- if(confirm(`${currentDate} 기록을 모두 지울까? 이 날짜의 체크·시간·메모만 삭제돼.`)){
-  localStorage.removeItem(keyFor(currentDate));load(currentDate);showToast("이 날짜 기록을 초기화했어.");
- }
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.id==="dt"&&t.value){cur=t.value;render()}
+  if(t.dataset.c){rec(cur).d[t.dataset.c]=t.checked;save(cur);render()}
 });
-$("#copyBtn").addEventListener("click",()=>{
- const data=collect(), names={vocab:"영어 단어",literature:"문학 2지문",break1:"휴식",reading:"독서 2지문",dinner:"저녁 식사",calculus:"미적분 쎈",break2:"짧은 휴식",lecture:"수학Ⅱ 강의",wrong:"수학Ⅱ 오답"};
- const lines=[`공부 기록 — ${currentDate}`,`완료: ${$("#doneCount").textContent}`,`입력 시간 합계: ${$("#totalTime").textContent}`,"",...Object.entries(data.tasks).map(([id,v])=>`${v.done?"✓":"○"} ${names[id]||id}: ${v.minutes?v.minutes+"분":"시간 미입력"}`), "", "메모:",data.note||"(없음)"];
- const text=lines.join("\n");
- if(navigator.share){navigator.share({title:"공부 기록",text}).catch(()=>{})}
- else if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(()=>showToast("기록 요약을 복사했어!")).catch(()=>showToast(text.slice(0,45)+"…"))}
- else{prompt("아래 기록을 복사해 줘:",text)}
+document.addEventListener("input",e=>{
+  const t=e.target;
+  if(t.dataset.m){const v=Math.max(0,parseInt(t.value)||0);rec(cur).m[t.dataset.m]=v;save(cur);
+    const st=document.querySelectorAll(".stat b");if(st[1])st[1].textContent=fmt(minT(all[cur]))}
+  if(t.id==="memo"){rec(cur).memo=t.value;save(cur)}
 });
-load(currentDate);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)render()});
+render();
 </script>
 </body>
 </html>
