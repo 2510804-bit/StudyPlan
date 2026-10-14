@@ -45,12 +45,59 @@ textarea{width:100%;min-height:80px}
 .toast.s{opacity:1}
 .pg{display:none}.pg.a{display:block}
 .warn{color:var(--warn);font-size:13px}
+/* ---- 다듬기 ---- */
+html{background:var(--bg)}
+body{background:radial-gradient(520px 320px at 85% -40px,rgba(124,196,255,.16),transparent 70%),radial-gradient(480px 300px at -10% 18%,rgba(95,214,160,.10),transparent 70%);background-attachment:fixed;letter-spacing:-.01em}
+h1{font-size:28px;font-weight:800;letter-spacing:-.03em;background:linear-gradient(90deg,#fff,var(--ac));-webkit-background-clip:text;background-clip:text;color:transparent}
+.card,.stat{background:rgba(26,36,54,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:20px;box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.stat b{font-size:28px;font-weight:800;letter-spacing:-.03em}
+button{background:linear-gradient(135deg,var(--ac),#8fe3c4);transition:transform .15s}
+button:active{transform:scale(.96)}button.g{background:#26344d}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--ac);outline-offset:1px}
+.task input[type=checkbox]{appearance:none;-webkit-appearance:none;width:28px;height:28px;border-radius:10px;border:2px solid #3a4a68;display:grid;place-content:center;transition:.2s;background:transparent}
+.task input[type=checkbox]::after{content:"✓";color:#06231a;font-weight:800;font-size:16px;transform:scale(0);transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.task input[type=checkbox]:checked{background:linear-gradient(135deg,var(--ok),var(--ac));border-color:transparent}
+.task input[type=checkbox]:checked::after{transform:scale(1)}
+.timer .t{font-size:46px;font-weight:800;background:linear-gradient(90deg,var(--ac),var(--ok));-webkit-background-clip:text;background-clip:text;color:transparent}
+.cal div{border-radius:10px;font-weight:600}
+.nav{left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 10px);max-width:616px;margin:0 auto;border-radius:24px;border:1px solid var(--line);background:rgba(12,19,32,.78);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.nav button{background:none;border-radius:18px;transition:.2s}
+.nav button.a{background:rgba(124,196,255,.14)}
+.nav button.a span{transform:translateY(-2px) scale(1.15)}
+.nav span{transition:transform .25s}
+.tr{height:8px;background:#0f1726;border-radius:8px;overflow:hidden}
+.tr i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--ac),var(--ok));transform-origin:left}
+.tr.big{height:10px;margin:-2px 0 14px}
+.hb{margin-bottom:12px}.hb .tr{margin-top:6px}
+.ring{width:104px;height:104px;flex:none}
+.rb{fill:none;stroke:#0f1726;stroke-width:10}
+.rf{fill:none;stroke:url(#rg);stroke-width:10;stroke-linecap:round;stroke-dasharray:var(--c);stroke-dashoffset:var(--o);transform:rotate(-90deg);transform-origin:60px 60px}
+.ring text{fill:#fff;font-size:26px;font-weight:800}
+.bars{display:flex;align-items:flex-end;gap:3px;height:120px;margin-bottom:18px}
+.bc{flex:1;height:100%;position:relative;display:flex;align-items:flex-end}
+.bc i{display:block;width:100%;min-height:3px;border-radius:5px 5px 2px 2px;background:linear-gradient(var(--ac),var(--ok));transform-origin:bottom}
+.bc u{position:absolute;left:0;right:0;bottom:-16px;text-align:center;font-size:9px;color:var(--sub);text-decoration:none}
+@keyframes up{from{opacity:0;transform:translateY(16px)}}
+@keyframes grow{from{transform:scaleY(0)}}
+@keyframes growx{from{transform:scaleX(0)}}
+@keyframes ring{from{stroke-dashoffset:var(--c)}}
+.anim>*{animation:up .6s both cubic-bezier(.2,.8,.2,1)}
+.anim>:nth-child(2){animation-delay:.06s}.anim>:nth-child(3){animation-delay:.12s}.anim>:nth-child(4){animation-delay:.18s}.anim>:nth-child(5){animation-delay:.24s}.anim>:nth-child(6){animation-delay:.3s}.anim>:nth-child(n+7){animation-delay:.36s}
+.anim .bc i{animation:grow .9s both cubic-bezier(.2,.8,.2,1)}
+.anim .tr i{animation:growx 1s .2s both cubic-bezier(.2,.8,.2,1)}
+.anim .rf{animation:ring 1.3s .25s both cubic-bezier(.2,.8,.2,1)}
+#splash{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-weight:800;font-size:18px;pointer-events:none;animation:fade .5s .8s forwards}
+#splash span{font-size:52px;color:var(--ac);animation:pop 1s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes pop{from{opacity:0;transform:scale(.4) rotate(-40deg)}}
+@keyframes fade{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <nav class="nav" id="nav"></nav>
 <div class="toast" id="toast"></div>
+<div id="splash"><span>✦</span>매일 공부 기록</div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -89,7 +136,7 @@ const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;
 
 let all = JSON.parse(localStorage.getItem("sp_days")||"{}");   // {date:{d:{},m:{},memo}}
 let user=null, db=null, auth=null, sync=cloudOn?"로그인 필요":"설정 안 됨";
-let page="today", cur=today(), mon=today().slice(0,7);
+let page="today", cur=today(), mon=today().slice(0,7), animNext=true;
 let timer = JSON.parse(localStorage.getItem("sp_timer")||"null"); // {id,start,date}
 
 const rec = d=>all[d]||(all[d]={d:{},m:{},memo:""});
@@ -161,12 +208,22 @@ function monthStats(m){
 }
 
 /* ---------- 화면 ---------- */
+function ring(p){const C=2*Math.PI*46;return `<svg class="ring" viewBox="0 0 120 120"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7cc4ff"/><stop offset="1" stop-color="#5fd6a0"/></linearGradient></defs><circle cx="60" cy="60" r="46" class="rb"/><circle cx="60" cy="60" r="46" class="rf" style="--c:${C};--o:${C*(1-p/100)}"/><text x="60" y="68" text-anchor="middle">${p}%</text></svg>`}
+function bars(a,l){const mx=Math.max(1,...a);return `<div class="bars">`+a.map((v,i)=>`<div class="bc"><i style="height:${v/mx*88+(v?0:0)}%;animation-delay:${i*22}ms"></i><u>${l[i]}</u></div>`).join("")+`</div>`}
+function hbars(it){const mx=Math.max(1,...it.map(x=>x[1]));return it.map(([n,v],i)=>`<div class="hb"><div class="row"><span class="nm" style="font-size:14px">${esc(n)}</span><span class="sp"></span><span class="sub">${fmt(v)}</span></div><div class="tr"><i style="width:${v/mx*100}%;animation-delay:${.2+i*.08}s"></i></div></div>`).join("")}
+function charts(m,s){const mins=[],lb=[],sub={};TASKS.forEach(t=>sub[t.id]=0);
+  for(let i=1;i<=s.last;i++){const r=all[`${m}-${pad(i)}`];mins.push(minT(r));lb.push(i===1||i%5===0?i:"");if(r)TASKS.forEach(t=>sub[t.id]+=+r.m[t.id]||0)}
+  return `<div class="card"><div class="row"><div class="sp"><b>계획 완료율</b><div class="sub" style="margin-top:4px">${s.done} / ${s.days*TASKS.length}개 완료</div></div>${ring(s.rate)}</div></div>
+  <div class="card"><b>일별 공부 시간</b><div class="sub" style="margin:4px 0 14px">이번 달 합계 ${fmt(s.min)}</div>${bars(mins,lb)}</div>
+  <div class="card"><b>과목별 공부 시간</b><div style="margin-top:12px">${hbars(TASKS.map(t=>[t.n,sub[t.id]]))}</div></div>`}
+function recent(){const a=[],l=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);a.push(minT(all[ds(d)]));l.push(i%2?"":d.getDate())}
+  return `<div class="card"><b>최근 14일</b><div class="sub" style="margin:4px 0 14px">합계 ${fmt(a.reduce((x,y)=>x+y,0))}</div>${bars(a,l)}</div>`}
 function viewToday(){
   const r=rec(cur), isT=cur===today();
   let h=`<h1>오늘의 공부 기록 ✦</h1>
   <div class="row card"><input type="date" id="dt" value="${cur}"><span class="sp"></span><button class="g" data-a="goToday">오늘로</button></div>
   <div class="stats"><div class="stat"><span class="sub">완료</span><b>${doneN(r)} / ${TASKS.length}</b></div>
-  <div class="stat"><span class="sub">총 공부 시간</span><b>${fmt(minT(r))}</b></div></div>`;
+  <div class="stat"><span class="sub">총 공부 시간</span><b>${fmt(minT(r))}</b></div></div><div class="tr big"><i style="width:${doneN(r)/TASKS.length*100}%"></i></div>`;
   if(isT){
     const run=timer&&timer.date===cur;
     h+=`<div class="card timer"><div class="sub">공부 타이머</div><div class="t" id="tm">00:00</div>
@@ -198,12 +255,12 @@ function viewStats(){
    <div class="stat"><span class="sub">연속 공부 일수</span><b>${streak()}일</b><span class="sub">최장 ${bestStreak()}일</span></div>
    <div class="stat"><span class="sub">총 공부 시간</span><b>${fmt(s.min)}</b></div>
    <div class="stat"><span class="sub">공부한 날 · 일평균</span><b>${s.studied}일</b><span class="sub">${s.studied?fmt(Math.round(s.min/s.studied)):"0분"}</span></div></div>
-  <div class="card"><div class="cal">${cal}</div><div class="sub" style="margin-top:8px">진할수록 많이 완료한 날이에요. 날짜를 누르면 그날 기록으로 이동해요.</div></div>`;
+  ${charts(mon,s)}<div class="card"><div class="cal">${cal}</div><div class="sub" style="margin-top:8px">진할수록 많이 완료한 날이에요. 날짜를 누르면 그날 기록으로 이동해요.</div></div>`;
 }
 function viewLog(){
   const ks=Object.keys(all).filter(k=>active(all[k])||all[k].memo).sort().reverse();
-  return `<h1>공부 기록</h1>`+(ks.length?ks.map(k=>{const r=all[k];
-    return `<button class="rec" data-go="${k}"><div class="row"><b>${k}</b><span class="sp"></span><span class="sub">${doneN(r)}/${TASKS.length} 완료 · ${fmt(minT(r))}</span></div>${r.memo?`<div class="sub" style="margin-top:4px">${esc(r.memo.slice(0,60))}</div>`:""}</button>`}).join("")
+  return `<h1>공부 기록</h1>`+recent()+(ks.length?ks.map(k=>{const r=all[k];
+    return `<button class="rec" data-go="${k}"><div class="row"><b>${k}</b><span class="sp"></span><span class="sub">${doneN(r)}/${TASKS.length} 완료 · ${fmt(minT(r))}</span></div>${r.memo?`<div class="sub" style="margin-top:4px">${esc(r.memo.slice(0,60))}</div>`:""}<div class="tr" style="margin-top:8px"><i style="width:${doneN(r)/TASKS.length*100}%"></i></div></button>`}).join("")
     :`<div class="card sub">아직 기록이 없어요. 오늘 탭에서 첫 기록을 남겨 보세요.</div>`);
 }
 function viewAcct(){
@@ -217,7 +274,7 @@ function viewAcct(){
 
 function render(){
   const v={today:viewToday,stats:viewStats,log:viewLog,acct:viewAcct}[page]();
-  $("#app").innerHTML=v;
+  const ap=$("#app");ap.className=animNext?"anim":"";animNext=false;ap.innerHTML=v;
   $("#nav").innerHTML=[["today","✏️","오늘 공부"],["stats","📊","월간 통계"],["log","📚","공부 기록"],["acct","👤","계정"]]
    .map(([k,i,n])=>`<button class="${page===k?"a":""}" data-p="${k}"><span>${i}</span>${n}</button>`).join("");
   tick();
@@ -232,13 +289,13 @@ setInterval(tick,1000);
 /* ---------- 이벤트 ---------- */
 document.addEventListener("click",e=>{
   const t=e.target.closest("[data-p],[data-a],[data-go]"); if(!t)return;
-  if(t.dataset.p){page=t.dataset.p;render();scrollTo(0,0);return}
-  if(t.dataset.go){cur=t.dataset.go;page="today";render();scrollTo(0,0);return}
+  if(t.dataset.p){page=t.dataset.p;animNext=true;render();scrollTo(0,0);return}
+  if(t.dataset.go){cur=t.dataset.go;page="today";animNext=true;render();scrollTo(0,0);return}
   const a=t.dataset.a;
   if(a==="goToday"){cur=today();render()}
   if(a==="login")login();
   if(a==="logout")signOut(auth);
-  if(a==="pm"||a==="nm"){const [y,m]=mon.split("-").map(Number),d=new Date(y,m-1+(a==="nm"?1:-1),1);mon=ds(d).slice(0,7);render()}
+  if(a==="pm"||a==="nm"){const [y,m]=mon.split("-").map(Number),d=new Date(y,m-1+(a==="nm"?1:-1),1);mon=ds(d).slice(0,7);animNext=true;render()}
   if(a==="reset"&&confirm(cur+" 기록을 초기화할까요?")){all[cur]={d:{},m:{},memo:""};save(cur);render()}
   if(a==="tstart"){timer={id:$("#tsel").value,start:Date.now(),date:today()};localStorage.setItem("sp_timer",JSON.stringify(timer));render()}
   if(a==="tstop"&&timer){
